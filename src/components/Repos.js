@@ -58,7 +58,7 @@ const Repos = () => {
           stars: total[language].stars + stargazers_count
         };
       }
-      return total; // trả về obj vì cần -> key:value để update và tìm value của lang nhìu nhất
+      return total; 
     }, {});
 
     // most use language 

@@ -1,15 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useAuth0 } from '@auth0/auth0-react';
-import { BsBoxArrowInRight } from "react-icons/bs";
 
 const Navbar = () => {
   const { 
     isAuthenticated,
     loginWithRedirect,
     logout,
-    user,
-    isLoading,
+    user
   } = useAuth0();
 
   // return user-obj if isAuthenticated = true
@@ -18,7 +16,7 @@ const Navbar = () => {
 
   return (
     <Wrapper>
-      {UserHere && user.picture && (<img src={user.picture} alt={user.name} />) }
+      {UserHere && user.picture && <img src={user.picture} alt={user.name} />}
       {UserHere && user.name && (
         <h4>
           Welcome, <strong>{user.name.toUpperCase()}</strong>
@@ -30,17 +28,19 @@ const Navbar = () => {
             logout({ returnTo: window.location.origin });
           }}
         >
-          LogOut
+          <strong>LOG OUT</strong>
         </button>
       ) : (
-        <button onClick={loginWithRedirect}> LogIn<BsBoxArrowInRight style={{paddingTop:'0.8px'}} /> </button>
+        <button onClick={loginWithRedirect}>
+          <strong>LogIn</strong>
+        </button>
       )}
     </Wrapper>
   );
 };
 
 const Wrapper = styled.nav`
-  padding: 1.5rem;
+  padding: 2rem;
   margin-bottom: 4rem;
   background: var(--clr-white);
   text-align: center;
@@ -52,26 +52,33 @@ const Wrapper = styled.nav`
   h4 {
     margin-bottom: 0;
     font-weight: 400;
-    font-size: 1.1rem
+    font-size: 1.1rem;
+    background: transparent;
   }
   img {
-    width: 35px !important;
-    height: 35px;
+    width: 37px !important;
+    height: 37px;
     border-radius: 50%;
     object-fit: cover;
   }
   button {
     background: transparent;
-    border: transparent;
-    font-size: 1.2rem;
+    border-radius: 5px;
+    margin-left: 11px;
+    color: var(--clr-primary-4);
+    border: none;
+    border-color: transparent;
+    padding: 0.5rem 0.5rem;
     text-transform: capitalize;
     letter-spacing: var(--spacing);
-    color: var(--clr-primary-4);
+    background: var(--clr-primary-5);
+    color: var(--clr-white);
+    transition: var(--transition);
     cursor: pointer;
-    justify-content: right
   }
   button:hover {
-    text-shadow: 2px 2px 3px var(--clr-grey-7);
+    background: var(--clr-primary-7);
+    color: var(--clr-primary-1);
   }
 `;
 

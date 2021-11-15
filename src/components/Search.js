@@ -1,17 +1,14 @@
 import React from 'react'
 import styled from 'styled-components'
 import { GithubContext } from '../context/context'
-import { MdSearch , MdError } from 'react-icons/md'
+import { MdSearch } from 'react-icons/md'
 
-const Search = () => {
+const Search = React.memo(() => {
     const [ user , setUser ] = React.useState('');
     const { requests , error , searchGithubUser , isLoading } = React.useContext(GithubContext);
-    
-    // Submit function get things from global context for search
-    const handleSubmit = ( e ) => {
+
+    const handleSubmit = (e) => {
       e.preventDefault();
-      // search(submitbutton) implement when u type something in input
-      // if user enter something
       if(user) {
         searchGithubUser(user);
         setUser('')
@@ -29,10 +26,11 @@ const Search = () => {
               <form onSubmit={handleSubmit}>
                 <div className='form-control'>  
                   <MdSearch />
-                  <input type='text'  
-                         placeholder='Enter user name...' 
-                         value={user} 
-                         onChange={(e) => setUser(e.target.value)}
+                  <input
+                    type='text'
+                    placeholder='Enter user name...' 
+                    value={user} 
+                    onChange={(e) => setUser(e.target.value)}
                   />
                   {requests > 0 && !isLoading && <button type='submit'>Search</button> }
                 </div>
@@ -41,7 +39,7 @@ const Search = () => {
             </Wrapper>
         </section>
     )
-};
+});
 
 const Wrapper = styled.div`
   position: relative;

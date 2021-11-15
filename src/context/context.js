@@ -18,41 +18,39 @@ function GithubProvider ({children}) {
     const [ isLoading , setIsLoading ] = useState(false);
     const [ error, setError ] = useState({ showErr: false, msg: ''});
 
-    // search -> update state
+    // search event -> update state
     const searchGithubUser = async (user) => {
-        toggleError(); 
-        setIsLoading(true);
+      toggleError();
+      setIsLoading(true);
 
-        const res = await axios.get(`${rootUrl}/users/${user}`).catch(err => console.log(err));
-        
-        // request success , user exist -> update state (githubUser, repos, followers)
-        if(res) {
-            setGithubUser(res.data);
-            const { login , followers_url } = res.data;
-            await Promise.allSettled([
-                axios(`${rootUrl}/users/${login}/repos?per_page=100`), // repos request
-                axios(`${followers_url}?per_page=100`), // followers
-              ])
-              .then(results => {
-                const [ repos, followers ] = results; // array(2): results [ {status:'fulfilled' , value:{...}} , {status: ,value: } ]
-                if(repos.status === 'fulfilled') { setRepos(repos.value.data); }
-                if(followers.status === 'fulfilled') { setFollwers(followers.value.data); }
-              })
-              .catch( err => console.log(err));
+      const res = await axios
+        .get(`${rootUrl}/users/${user}`)
+        .catch((err) => console.log(err));
+      console.log(res);
+      if (res) {
+        setGithubUser(res.data);
+        const { login, followers_url } = res.data;
 
-            // [ Repos] (https://api.github.com/users/john-smilga/repos?per_page=100)
-            // await axios.get(`${rootUrl}/users/${login}/repos?per_page=100`)
-            //      .then(response => setRepos(response.data) )
-            
-            // [Followers] (https://api.github.com/users/john-smilga/followers)
-            // await axios.get(`${followers_url}?per_page=100`)
-            //      .then(response => setFollwers(response.data)) 
-        }
-        else { 
-            toggleError(true , 'No user with that name'); 
-        }
-        checkRequests(); // after request check remaining value
-        setIsLoading(false); // loading is done 
+        await Promise.allSettled([
+          // return 100 post in the collection
+          axios(`${rootUrl}/users/${login}/repos?per_page=100`),
+          axios(`${followers_url}?per_page=100`),
+        ])
+          .then((results) => {
+            // console.log(results)
+            // results [ {status:'fulfilled' , value:{...}} , {status: ,value: } ]
+            const [repos, followers] = results;
+            repos.status === "fulfilled" && setRepos(repos.value.data);
+            followers.status === "fulfilled" &&
+              setFollwers(followers.value.data);
+          })
+          .catch((err) => console.log(err));
+      } else {
+        toggleError(true, "No username");
+      }
+      // after request, check 'remaining' value
+      checkRequests();
+      setIsLoading(false);
     };
 
 
@@ -61,24 +59,17 @@ function GithubProvider ({children}) {
     };
 
     // check rate -> requests limit - [Rate Limit](https://api.github.com/rate_limit)
-    // response {  data: {} , .... } ; let { data } = resposne
-    //  data { 
-    //     rate: { limit: 60 , remaining: 54 , ... }, // data.rate
-    //     resources: { core: {...} , graphic: {....} }
-    //  }
     const checkRequests = () => {
         axios(`${rootUrl}/rate_limit`)
-            .then( ({ data }) => {
-                let { rate: {remaining} } = data; // get remaining from data{}
+            .then(({ data }) => {
+                let { rate: {remaining} } = data; 
                 setRequests(remaining);
-                if (remaining === 0) {
-                    toggleError(true , 'You out of limits')
-                }
+                remaining === 0 && toggleError(true , 'Reach the limit')
             })
             .catch(err => console.log(err))
     };
 
-    // check error , limits every re-render 
+    // check error & limits when re-render 
     useEffect( checkRequests , []);
     
     return (
@@ -90,7 +81,15 @@ function GithubProvider ({children}) {
             }}
         >
             { children }
-        </GithubContext.Provider>)
+        </GithubContext.Provider>) 
 } 
 
-export { GithubContext , GithubProvider };
+export { GithubContext, GithubProvider };
+
+// [ Repos] (https://api.github.com/users/john-smilga/repos?per_page=100)
+// await axios.get(`${rootUrl}/users/${login}/repos?per_page=100`)
+//      .then(response => setRepos(response.data) )
+            
+// [Followers] (https://api.github.com/users/john-smilga/followers)
+// await axios.get(`${followers_url}?per_page=100`)
+//      .then(response => setFollwers(response.data)) 
